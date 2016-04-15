@@ -1,0 +1,30 @@
+language: node_js
+node_js:
+  - 5.0
+  - 5.1
+  - 5.2
+  - 5.3
+  - 5.4
+  - 5.5
+  - 5.6
+  - 5.7
+  - 5.8
+  - 5.9
+  - 5.10
+os:
+  - linux
+services:
+  - couchdb
+sudo: false
+before_install:
+  - npm install -g justo-cli
+  - npm install -g pouchdb-server
+  - pouchdb-server -n -o localhost -p 5985 -m &
+  - mkdir test/unit/data
+install: npm install
+before_script:
+  - curl -X PUT localhost:5984/elisa
+#script:
+#after_success:
+#after_failure:
+#after_script:
