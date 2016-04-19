@@ -20,10 +20,10 @@ before_install:
   - npm install -g justo-cli
   - npm install -g pouchdb-server
   - pouchdb-server -n -o localhost -p 5985 -m &
-  - mkdir test/unit/data
 install: npm install
 before_script:
   - curl -X PUT localhost:5984/elisa
+  - mkdir test/unit/data
 #script:
 #after_success:
 #after_failure:

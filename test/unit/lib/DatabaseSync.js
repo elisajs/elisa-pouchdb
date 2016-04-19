@@ -23,12 +23,26 @@ suite("Database (Synchronous Connection)", function() {
     db = cx.db;
   });
 
-  test("#getSchema()", function() {
-    var sch = db.getSchema("mysch");
-    sch.must.be.instanceOf(Schema);
-    sch.name.must.be.eq("mysch");
-    sch.db.must.be.same(db);
-    sch.connection.must.be.same(cx);
+  suite("#getSchema()", function() {
+    test("getSchema(name)", function() {
+      var sch = db.getSchema("mysch");
+
+      sch.must.be.instanceOf(Schema);
+      sch.name.must.be.eq("mysch");
+      sch.design.must.be.eq("mysch");
+      sch.db.must.be.same(db);
+      sch.connection.must.be.same(cx);
+    });
+
+    test("getSchema(name, opts)", function() {
+      var sch = db.getSchema("mysch", {design: "mydesign"});
+
+      sch.must.be.instanceOf(Schema);
+      sch.name.must.be.eq("mysch");
+      sch.design.must.be.eq("mydesign");
+      sch.db.must.be.same(db);
+      sch.connection.must.be.same(cx);
+    });
   });
 
   suite("#hasSchema()", function() {
@@ -40,8 +54,21 @@ suite("Database (Synchronous Connection)", function() {
   suite("#findSchema()", function() {
     test("findSchema(name) : Schema", function() {
       var sch = db.findSchema("mysch");
+
       sch.must.be.instanceOf(Schema);
       sch.name.must.be.eq("mysch");
+      sch.design.must.be.eq("mysch");
+      sch.db.must.be.same(db);
+      sch.connection.must.be.same(cx);
+      sch.driver.must.be.same(drv);
+    });
+
+    test("findSchema(name, opts) : Schema", function() {
+      var sch = db.findSchema("mysch", {design: "mydesign"});
+
+      sch.must.be.instanceOf(Schema);
+      sch.name.must.be.eq("mysch");
+      sch.design.must.be.eq("mydesign");
       sch.db.must.be.same(db);
       sch.connection.must.be.same(cx);
       sch.driver.must.be.same(drv);
@@ -57,18 +84,20 @@ suite("Database (Synchronous Connection)", function() {
           name: "mystore",
           qn: "mysch.mystore",
           fqn: "in-memory.mysch.mystore",
-          prefix: "mysch.mystore:"
+          prefix: "mysch.mystore:",
+          view: undefined
         });
       });
 
       test("getStore(schema, store, opts)", function() {
-        var store = db.getStore("mysch", "mystore", {prefix: "myprefix:"});
+        var store = db.getStore("mysch", "mystore", {prefix: "myprefix:", view: "myview"});
         store.must.be.instanceOf(Store);
         store.must.have({
           name: "mystore",
           qn: "mysch.mystore",
           fqn: "in-memory.mysch.mystore",
-          prefix: "myprefix:"
+          prefix: "myprefix:",
+          view: "myview"
         });
       });
 
@@ -79,18 +108,20 @@ suite("Database (Synchronous Connection)", function() {
           name: "mystore",
           qn: "mysch.mystore",
           fqn: "in-memory.mysch.mystore",
-          prefix: "mysch.mystore:"
+          prefix: "mysch.mystore:",
+          view: undefined
         });
       });
 
       test("getStore(qn, opts)", function() {
-        var store = db.getStore("mysch.mystore", {prefix: "myprefix:"});
+        var store = db.getStore("mysch.mystore", {prefix: "myprefix:", view: "myview"});
         store.must.be.instanceOf(Store);
         store.must.have({
           name: "mystore",
           qn: "mysch.mystore",
           fqn: "in-memory.mysch.mystore",
-          prefix: "myprefix:"
+          prefix: "myprefix:",
+          view: "myview"
         });
       });
     });
@@ -103,18 +134,20 @@ suite("Database (Synchronous Connection)", function() {
           name: "mystore",
           qn: "mysch.mystore",
           fqn: "in-memory.mysch.mystore",
-          prefix: "mysch.mystore:"
+          prefix: "mysch.mystore:",
+          view: undefined
         });
       });
 
       test("findStore(schema, store, opts) : Store", function() {
-        const store = db.findStore("mysch", "mystore", {prefix: "myprefix:"});
+        const store = db.findStore("mysch", "mystore", {prefix: "myprefix:", view: "myview"});
         store.must.be.instanceOf(Store);
         store.must.have({
           name: "mystore",
           qn: "mysch.mystore",
           fqn: "in-memory.mysch.mystore",
-          prefix: "myprefix:"
+          prefix: "myprefix:",
+          view: "myview"
         });
       });
 
@@ -125,18 +158,20 @@ suite("Database (Synchronous Connection)", function() {
           name: "mystore",
           qn: "mysch.mystore",
           fqn: "in-memory.mysch.mystore",
-          prefix: "mysch.mystore:"
+          prefix: "mysch.mystore:",
+          view: undefined
         });
       });
 
       test("findStore(qn, opts) : Store", function() {
-        const store = db.findStore("mysch.mystore", {prefix: "myprefix:"});
+        const store = db.findStore("mysch.mystore", {prefix: "myprefix:", view: "myview"});
         store.must.be.instanceOf(Store);
         store.must.have({
           name: "mystore",
           qn: "mysch.mystore",
           fqn: "in-memory.mysch.mystore",
-          prefix: "myprefix:"
+          prefix: "myprefix:",
+          view: "myview"
         });
       });
     });
@@ -161,18 +196,20 @@ suite("Database (Synchronous Connection)", function() {
           name: "mycoll",
           qn: "mysch.mycoll",
           fqn: "in-memory.mysch.mycoll",
-          prefix: "mysch.mycoll:"
+          prefix: "mysch.mycoll:",
+          view: undefined
         });
       });
 
       test("getCollection(schema, coll, opts) : Collection", function() {
-        var coll = db.getCollection("mysch", "mycoll", {prefix: "myprefix:"});
+        var coll = db.getCollection("mysch", "mycoll", {prefix: "myprefix:", view: "myview"});
         coll.must.be.instanceOf(Collection);
         coll.must.have({
           name: "mycoll",
           qn: "mysch.mycoll",
           fqn: "in-memory.mysch.mycoll",
-          prefix: "myprefix:"
+          prefix: "myprefix:",
+          view: "myview"
         });
       });
 
@@ -183,18 +220,20 @@ suite("Database (Synchronous Connection)", function() {
           name: "mycoll",
           qn: "mysch.mycoll",
           fqn: "in-memory.mysch.mycoll",
-          prefix: "mysch.mycoll:"
+          prefix: "mysch.mycoll:",
+          view: undefined
         });
       });
 
       test("getCollection(qn, opts) : Collection", function() {
-        var coll = db.getCollection("mysch.mycoll", {prefix: "myprefix:"});
+        var coll = db.getCollection("mysch.mycoll", {prefix: "myprefix:", view: "myview"});
         coll.must.be.instanceOf(Collection);
         coll.must.have({
           name: "mycoll",
           qn: "mysch.mycoll",
           fqn: "in-memory.mysch.mycoll",
-          prefix: "myprefix:"
+          prefix: "myprefix:",
+          view: "myview"
         });
       });
     });
@@ -207,18 +246,20 @@ suite("Database (Synchronous Connection)", function() {
           name: "mycoll",
           qn: "mysch.mycoll",
           fqn: "in-memory.mysch.mycoll",
-          prefix: "mysch.mycoll:"
+          prefix: "mysch.mycoll:",
+          view: undefined
         });
       });
 
       test("findCollection(schema, coll, opts) : Collection", function() {
-        const coll = db.findCollection("mysch", "mycoll", {prefix: "myprefix:"});
+        const coll = db.findCollection("mysch", "mycoll", {prefix: "myprefix:", view: "myview"});
         coll.must.be.instanceOf(Collection);
         coll.must.have({
           name: "mycoll",
           qn: "mysch.mycoll",
           fqn: "in-memory.mysch.mycoll",
-          prefix: "myprefix:"
+          prefix: "myprefix:",
+          view: "myview"
         });
       });
 
@@ -229,18 +270,20 @@ suite("Database (Synchronous Connection)", function() {
           name: "mycoll",
           qn: "mysch.mycoll",
           fqn: "in-memory.mysch.mycoll",
-          prefix: "mysch.mycoll:"
+          prefix: "mysch.mycoll:",
+          view: undefined
         });
       });
 
       test("findCollection(qn, opts) : Collection", function() {
-        const coll = db.findCollection("mysch.mycoll", {prefix: "myprefix:"});
+        const coll = db.findCollection("mysch.mycoll", {prefix: "myprefix:", view: "myview"});
         coll.must.be.instanceOf(Collection);
         coll.must.have({
           name: "mycoll",
           qn: "mysch.mycoll",
           fqn: "in-memory.mysch.mycoll",
-          prefix: "myprefix:"
+          prefix: "myprefix:",
+          view: "myview"
         });
       });
     });

@@ -28,6 +28,8 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
 
+
+
   function _class(schema, name, opts) {_classCallCheck(this, _class);
 
     if (!opts) opts = {};var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, 
@@ -35,7 +37,26 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
     schema, name));
     Object.defineProperty(_this, "prefix", { value: opts.prefix || _this.qn + ":" });
-    Object.defineProperty(_this, "sequence", { value: opts.sequence || _this.qn + ".__sequence_" });return _this;}_createClass(_class, [{ key: 
+    Object.defineProperty(_this, "sequence", { value: opts.sequence || _this.qn + ".__sequence_" });
+    Object.defineProperty(_this, "view", { value: opts.view === true ? name : opts.view });return _this;}_createClass(_class, [{ key: "isView", value: function isView() 
+
+
+
+
+
+
+
+    {
+      return !!this.view;} }, { key: 
+
+
+
+
+
+
+
+
+
 
 
 
@@ -66,18 +87,21 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
     id, callback) {
-      var _id;
+      var client = this.client;
 
 
-      _id = this[key](id);
+      if (this.isView()) {
+        client.query(this.viewId, { key: id }, function (error, res) {
+          callback(undefined, res.rows.length == 1);});} else 
 
+      {
+        this.client.get(this[key](id), function (res, doc) {
+          if (res) {
+            if (res.error && res.reason == "missing") callback(undefined, false);else 
+            callback(err);} else 
+          {
+            callback(undefined, true);}});}} }, { key: "nextSequenceValue", value: function nextSequenceValue(
 
-      this.client.get(_id, function (res, doc) {
-        if (res) {
-          if (res.error && res.reason == "missing") callback(undefined, false);else 
-          callback(err);} else 
-        {
-          callback(undefined, true);}});} }, { key: "nextSequenceValue", value: function nextSequenceValue(
 
 
 
@@ -223,4 +247,4 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
         if (error) callback(error);else 
-        remove(0);});} }, { key: "client", get: function get() {return this.connection.client;} }]);return _class;}(_elisa.Collection);exports.default = _class;
+        remove(0);});} }, { key: "viewId", get: function get() {return this.isView() ? this.schema.design + "/" + this.view : undefined;} }, { key: "client", get: function get() {return this.connection.client;} }]);return _class;}(_elisa.Collection);exports.default = _class;

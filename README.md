@@ -4,10 +4,11 @@
 
 Features:
 
-- This driver allow to use the *schema* concept.
+- This driver allows to use the *schema* concept.
 - This driver can work with key-value stores and document collections.
 - This driver can connect to local databases (*browser apps* and *Node.js* apps) and remote databases (*PouchDB Server* or *CouchDB*).
 - This driver can be used with an in-memory database.
+- This driver can work with design documents and views.
 
 *PouchDB* is a document database, where all the documents are saved into a database,
 without collection support and without schema support. But **this driver** simulates *key-value stores* and
@@ -71,22 +72,51 @@ var cx = driver.createConnection({
 
 When the server has no authentication, we can skip `username` and `password`.
 
+# Schemas
+
+The schemas doesn't support by *PouchDB*/*CouchDB* natively. But this driver does it.
+In many cases, the schemas are associated to design documents.
+
+To get a schema object, we can use the methods: `getSchema()` and `findSchema()` of the
+`Database` class. To indicate the design document name, use the `design` option.
+
+Next, some illustrative examples:
+
+```
+var hr = db.getSchema("hr");
+var hr = db.getSchema("hr", {design: "hr"});
+```
+
 # Key-value stores
 
 *PouchDB* is a document database, but we can use this driver to save documents
 as values in key-value stores.
 
+To get a store object, we can use the `getStore()` and `findStore()` methods.
+With the `view` option, we can indicate the view name if the store is associated
+to a view.
+
+Examples:
+
 ```
-var store = cx.db.getStore("schema.store");
-cx.db.findStore("schema.store", function(error, store) {});
+var emp = cx.db.getStore("hr.employee");
+var emp = cx.db.getStore("hr.employee", {design: "hr", view: "employees"});
 ```
+
+The `view` option can be:
+
+- A string, the view name.
+- `true`, then the driver will use the store name as view name.
 
 ## Inserting a key-value
 
-This method is used to insert a document. The document must set the key:
+The `insert()` method is used to insert documents how indicated in the *Elisa* spec.
+We must not forget to indicate the `id` property, this is the document key.
+
+Example:
 
 ```
-store.insert({id: "the key", x: 1, y: 2}, function(error) {});
+emp.insert({id: "Elvis Costello", year: 1954}, function(error) {});
 ```
 
 If the document exists, this is overwritten.
@@ -105,7 +135,7 @@ store.insert([
 
 ## Updating a value
 
-If we need to update all the document, we must use the `insert()` method. But
+If we need to update all the documents, we must use the `insert()` method. But
 if we want to update some fields, the `update()` method:
 
 ```
@@ -132,18 +162,27 @@ store.find({id: "the key"}, function(error, doc) {});
 store.findAll(function(error, result) {});
 ```
 
-## Other methods
+## Observations
 
-See the *Elisa.js* spec.
+Please, see the *Elisa.js* spec to know how to use the stores. This driver
+complies with the spec.
 
 # Document collection
 
 *PouchDB* is a document database. This DBMS doesn't support the *collection* concept.
 But this driver does it.
 
+To get a collection object, we must use the `getCollection()` and `findCollection()` methods.
+If the collection is associated to a view, we can indicate it with the `view` option:
+
+- If its value is true, the view name is the collection name.
+- If its value is a string, the view name is the specified one.
+
+Examples:
+
 ```
-var coll = cx.db.getCollection("schema.collection");
-cx.db.findCollection("schema.collection", function(error, coll) {});
+var emp = cx.db.getCollection("hr.employees");
+var emp = cx.db.getCollection("hr.employees", {design: "hr", view: "employees"});
 ```
 
 ## Inserting documents
@@ -189,6 +228,7 @@ q.project("x", "y").filter({x: 1}).sort("x").run(function(error, result) {});
 q.project("x", "y").find({x: 1}, function(error, result) {});
 ```
 
-## Other methods
+## Observations
 
-See the *Elisa.js* spec.
+Please, see the *Elisa.js* spec to know how to use the collections. This driver
+complies with the spec.

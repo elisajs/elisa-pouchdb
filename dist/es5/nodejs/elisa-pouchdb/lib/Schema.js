@@ -14,8 +14,16 @@ var _Collection = require("./Collection");var _Collection2 = _interopRequireDefa
 
 
 
-  function _class(database, name) {_classCallCheck(this, _class);return _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, 
-    database, name));}_createClass(_class, [{ key: "getStore", value: function getStore(
+
+
+
+  function _class(database, name, opts) {_classCallCheck(this, _class);
+
+    if (!opts) opts = {};var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, 
+
+
+    database, name, opts));
+    Object.defineProperty(_this, "design", { value: opts.design || name });return _this;}_createClass(_class, [{ key: "getStore", value: function getStore(
 
 
 

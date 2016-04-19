@@ -30,12 +30,19 @@ var _Schema = require("./Schema");var _Schema2 = _interopRequireDefault(_Schema)
 
 
 
+    name, opts) {
+      return new _Schema2.default(this, name, opts);} }, { key: "readSchema", value: function readSchema(
+
+
+
+
+
     name) {
-      return new _Schema2.default(this, name);} }, { key: "readSchema", value: function readSchema(
+      var opts, callback;for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {rest[_key - 1] = arguments[_key];}
 
 
+      if (rest.length == 1) callback = rest[0];else 
+      if (rest.length >= 2) {;opts = rest[0];callback = rest[1];}
 
 
-
-    name, callback) {
-      callback(undefined, new _Schema2.default(this, name));} }, { key: "client", get: function get() {return this.connection.client;} }]);return _class;}(_elisa.Database);exports.default = _class;
+      callback(undefined, new _Schema2.default(this, name, opts));} }, { key: "client", get: function get() {return this.connection.client;} }]);return _class;}(_elisa.Database);exports.default = _class;

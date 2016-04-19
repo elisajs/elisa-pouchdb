@@ -24,9 +24,19 @@ var sort = new _elisaUtil.Sorter().sort;var _class = function (_CollectionQuery)
 
 
     findAll, value: function value(opts, callback) {var _this2 = this;
-      this.source.client.allDocs(Object.assign({ include_docs: true }, opts), function (error, res) {
-        if (error) return callback(error);
-        callback(undefined, new _elisa.Result(filter(project(res.rows, "doc", { top: true }), { _id: { $like: "^" + _this2.source.qn + ":" } })));});} }, { key: "_run", value: function _run(
+      var src = this.source;
+      var client = src.client;
+
+      if (src.isView()) {
+        client.query(src.viewId, {}, function (error, res) {
+          if (error) callback(error);else 
+          callback(undefined, new _elisa.Result(project(res.rows, "value", { top: true })));});} else 
+
+      {
+        client.allDocs(Object.assign({ include_docs: true }, opts), function (error, res) {
+          if (error) return callback(error);
+          callback(undefined, new _elisa.Result(filter(project(res.rows, "doc", { top: true }), { _id: { $like: "^" + _this2.source.qn + ":" } })));});}} }, { key: "_run", value: function _run(
+
 
 
 
