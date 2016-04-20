@@ -1,14 +1,17 @@
 "use strict";Object.defineProperty(exports, "__esModule", { value: true });var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();
 var _elisa = require("elisa");
 var _elisaUtil = require("elisa-util");
-var _CollectionQuery = require("./CollectionQuery");var _CollectionQuery2 = _interopRequireDefault(_CollectionQuery);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}function _possibleConstructorReturn(self, call) {if (!self) {throw new ReferenceError("this hasn't been initialised - super() hasn't been called");}return call && (typeof call === "object" || typeof call === "function") ? call : self;}function _inherits(subClass, superClass) {if (typeof superClass !== "function" && superClass !== null) {throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;}
+var _CollectionQuery = require("./CollectionQuery");var _CollectionQuery2 = _interopRequireDefault(_CollectionQuery);
+var _ViewEngine = require("./ViewEngine");var _ViewEngine2 = _interopRequireDefault(_ViewEngine);
+var _DbEngine = require("./DbEngine");var _DbEngine2 = _interopRequireDefault(_DbEngine);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}function _possibleConstructorReturn(self, call) {if (!self) {throw new ReferenceError("this hasn't been initialised - super() hasn't been called");}return call && (typeof call === "object" || typeof call === "function") ? call : self;}function _inherits(subClass, superClass) {if (typeof superClass !== "function" && superClass !== null) {throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;}
 
 
 var check = new _elisaUtil.Checker().check;
 var update = new _elisaUtil.Updater().update;
+var viewEngine = new _ViewEngine2.default();
+var dbEngine = new _DbEngine2.default();
 
 
-var key = Symbol();
 var insertDocs = Symbol();
 var insertDoc = Symbol();
 var insertDocWithId = Symbol();
@@ -47,7 +50,7 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
     {
-      return !!this.view;} }, { key: 
+      return !!this.view;} }, { key: "key", value: function key(
 
 
 
@@ -72,7 +75,7 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
 
-    key, value: function value(id) {
+    id) {
       return this.prefix + id;} }, { key: "query", value: function query() 
 
 
@@ -87,23 +90,16 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
     id, callback) {
-      var client = this.client;
-
-
-      if (this.isView()) {
-        client.query(this.viewId, { key: id }, function (error, res) {
-          callback(undefined, res.rows.length == 1);});} else 
-
-      {
-        this.client.get(this[key](id), function (res, doc) {
-          if (res) {
-            if (res.error && res.reason == "missing") callback(undefined, false);else 
-            callback(err);} else 
-          {
-            callback(undefined, true);}});}} }, { key: "nextSequenceValue", value: function nextSequenceValue(
+      if (this.isView()) viewEngine.hasId(this, id, callback);else 
+      dbEngine.hasId(this, id, callback);} }, { key: "_findAll", value: function _findAll(
 
 
 
+
+
+    opts, callback) {
+      if (this.isView()) viewEngine.findAll(this, opts, callback);else 
+      dbEngine.findAll(this, opts, callback);} }, { key: "nextSequenceValue", value: function nextSequenceValue(
 
 
 
@@ -158,7 +154,7 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
         if (error) return callback(error);
         if (exists) return callback(new Error("Id already exists."));
 
-        _this3.client.put(doc, _this3[key](doc.id), opts, function (res) {
+        _this3.client.put(doc, _this3.key(doc.id), opts, function (res) {
           if (res && res.error) callback(res);else 
           callback();});});} }, { key: 
 
@@ -169,7 +165,7 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
       this.nextSequenceValue(function (error, value) {
         if (error) return callback(error);
         doc.id = value;
-        _this4.client.put(doc, _this4[key](doc.id), opts, function (res) {
+        _this4.client.put(doc, _this4.key(doc.id), opts, function (res) {
           if (res && res.error) callback(res);else 
           callback();});});} }, { key: 
 
@@ -247,4 +243,13 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
         if (error) callback(error);else 
-        remove(0);});} }, { key: "viewId", get: function get() {return this.isView() ? this.schema.design + "/" + this.view : undefined;} }, { key: "client", get: function get() {return this.connection.client;} }]);return _class;}(_elisa.Collection);exports.default = _class;
+        remove(0);});} }, { key: "_truncate", value: function _truncate(
+
+
+
+
+
+
+    opts, callback) {
+      if (this.isView()) viewEngine.truncate(this, opts, callback);else 
+      dbEngine.truncate(this, opts, callback);} }, { key: "viewId", get: function get() {return this.isView() ? this.schema.design + "/" + this.view : undefined;} }, { key: "client", get: function get() {return this.connection.client;} }]);return _class;}(_elisa.Collection);exports.default = _class;
