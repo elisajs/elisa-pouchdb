@@ -29,12 +29,10 @@ var dbEngine = new _DbEngine2.default();var _class = function (_Store) {_inherit
 
 
 
-  function _class(schema, name, opts) {_classCallCheck(this, _class);
+  function _class(schema, name, opts) {_classCallCheck(this, _class);var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, 
+    schema, name, opts));
 
-    if (!opts) opts = {};var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, 
-
-
-    schema, name));
+    if (!opts) opts = {};
     Object.defineProperty(_this, "prefix", { value: opts.prefix || _this.qn + ":" });
     Object.defineProperty(_this, "view", { value: opts.view === true ? name : opts.view });return _this;}_createClass(_class, [{ key: "isView", value: function isView() 
 
@@ -79,29 +77,25 @@ var dbEngine = new _DbEngine2.default();var _class = function (_Store) {_inherit
 
     id, callback) {
       if (this.isView()) viewEngine.hasId(this, id, callback);else 
-      dbEngine.hasId(this, id, callback);} }, { key: "_find", value: function _find(
+      dbEngine.hasId(this, id, callback);} }, { key: "_count", value: function _count(
+
+
+
+
+
+    opts, callback) {
+      this._findAll(opts, function (error, res) {
+        if (error) callback(error);else 
+        callback(undefined, res.length);});} }, { key: "_findOne", value: function _findOne(
+
 
 
 
 
 
     query, opts, callback) {
-      var client = this.client;
-
-
-      if (!opts) opts = {};
-      if (!query.id) throw new Error("Id field expected.");
-
-
       if (this.isView()) viewEngine.findOne(this, query, {}, opts, callback);else 
-      dbEngine.findOne(this, query, {}, opts, callback);} }, { key: "_findOne", value: function _findOne(
-
-
-
-
-
-    query, opts, callback) {
-      this._find(query, opts, callback);} }, { key: "_findAll", value: function _findAll(
+      dbEngine.findOne(this, query, {}, opts, callback);} }, { key: "_findAll", value: function _findAll(
 
 
 
@@ -116,11 +110,6 @@ var dbEngine = new _DbEngine2.default();var _class = function (_Store) {_inherit
 
 
     docs, opts, callback) {
-
-      if (!opts) opts = {};
-      if (!callback) callback = function callback() {};
-
-
       if (docs instanceof Array) this[insertDocs](docs, opts, callback);else 
       this[insertDoc](docs, opts, callback);} }, { key: 
 
@@ -176,7 +165,7 @@ var dbEngine = new _DbEngine2.default();var _class = function (_Store) {_inherit
       if (!callback) callback = function callback() {};
 
 
-      this._find({ id: query.id }, {}, function (error, doc) {
+      this._findOne({ id: query.id }, {}, function (error, doc) {
         if (doc) {
           update(doc, updt);
           _this3._insert(doc, opts, function (error) {

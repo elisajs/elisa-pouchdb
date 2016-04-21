@@ -1,6 +1,6 @@
 {
   "name": "elisa-pouchdb",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "PouchDB Elisa.js driver.",
   "homepage": "http://elisajs.org",
   "author": {
@@ -48,7 +48,8 @@
     "justo-plugin-babel": "*",
     "justo-plugin-fs": "*",
     "justo-plugin-jshint": "*",
-    "justo-plugin-npm": "*"
+    "justo-plugin-npm": "*",
+    "justo-spy": "*"
   },
   "preferGlobal": false,
   "main": "index.js",

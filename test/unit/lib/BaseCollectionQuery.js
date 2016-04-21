@@ -361,4 +361,48 @@ suite("CollectionQuery", function() {
       });
     });
   });
+
+  suite("Injection", function() {
+    var coll, q;
+
+    init("*", function(done) {
+      drv.openConnection({}, function(error, con) {
+        coll = con.db.getCollection("myschema.mycoll", {inject: {c: 1}});
+        q = coll.q();
+        done();
+      });
+    });
+
+    test("filter(query)", function() {
+      q.filter({x: 1});
+      q.condition.must.be.eq({x: 1, c: 1});
+    });
+
+    test("find(query, callback)", function(done) {
+      q.find({x: 1}, function(error, res) {
+        assert(error === undefined);
+        q.condition.must.be.eq({x: 1, c: 1});
+        res.length.must.be.eq(1);
+        res.docs[0].must.have({
+          _id: 'myschema.mycoll:1',
+          x: 1,
+          c: 1
+        });
+        done();
+      });
+    });
+
+    test("findOne(query, callback)", function(done) {
+      q.findOne({x: 1}, function(error, doc) {
+        assert(error === undefined);
+        q.condition.must.be.eq({x: 1, c: 1});
+        doc.must.have({
+          _id: 'myschema.mycoll:1',
+          x: 1,
+          c: 1
+        });
+        done();
+      });
+    });
+  });
 })();

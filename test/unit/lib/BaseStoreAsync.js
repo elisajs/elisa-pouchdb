@@ -1,6 +1,7 @@
 //imports
 const assert = require("assert");
 const justo = require("justo");
+const spy = require("justo-spy");
 const suite = justo.suite;
 const test = justo.test;
 const init = justo.init;
@@ -54,6 +55,10 @@ suite("Base Store (Asynchronous Connection)", function() {
 
   test("#isView()", function() {
     store.isView().must.be.eq(false);
+  });
+
+  test("#hasInjection()", function() {
+    store.hasInjection().must.be.eq(false);
   });
 
   suite("#hasId()", function() {
@@ -241,15 +246,8 @@ suite("Base Store (Asynchronous Connection)", function() {
       store.remove.bind(store).must.raise(Error, []);
     });
 
-    test("remove({})", function(done) {
-      store.remove({});
-      setTimeout(function() {
-        store.count(function(error, cnt) {
-          assert(error === undefined);
-          cnt.must.be.eq(4);
-          done();
-        });
-      }, 500);
+    test("remove({})", function() {
+      store.remove.bind(store).must.raise(Error, [{}]);
     });
 
     suite("Id doesn't exist", function() {
@@ -439,6 +437,70 @@ suite("Base Store (Asynchronous Connection)", function() {
             done();
           });
         });
+      });
+    });
+  });
+
+  suite("Injection", function() {
+    init("*", function() {
+      store = spy(db.getStore("myschema.mystore", {inject: {inj: "theValue"}}), [
+        "_findOne()",
+        "_insert()",
+        "_update()",
+        "_remove()"
+      ]);
+    });
+
+    test("#hasInjection() : true", function() {
+      store.hasInjection().must.be.eq(true);
+    });
+
+    test("findOne(query, callback)", function(done) {
+      store.findOne({id: "testing"}, function(error, doc) {
+        assert(error === undefined);
+        store.spy.called("_findOne()").must.be.eq(1);
+        store.spy.getCall("_findOne()").arguments[0].must.be.eq({id: "testing"});
+        done();
+      });
+    });
+
+    test("insert(doc, callback)", function(done) {
+      store.insert({id: "new", x: 1}, function(error) {
+        assert(error === undefined);
+        store.spy.called("_insert()").must.be.eq(1);
+        store.spy.getCall("_insert()").arguments[0].must.be.eq({id: "new", x: 1, inj: "theValue"});
+        done();
+      });
+    });
+
+    test("insert(docs, callback)", function(done) {
+      store.insert([{id: "new1", x: 1}, {id: "new2", x: 2}], function(error) {
+        assert(error === undefined);
+        store.spy.called("_insert()").must.be.eq(1);
+        store.spy.getCall("_insert()").arguments[0].must.be.eq([
+          {id: "new1", x: 1, inj: "theValue"},
+          {id: "new2", x: 2, inj: "theValue"}
+        ]);
+        done();
+      });
+    });
+
+    test("update(query, upd, callback)", function(done) {
+      store.update({id: "testing"}, {x: 123}, function(error) {
+        assert(error === undefined);
+        store.spy.called("_update()").must.be.eq(1);
+        store.spy.getCall("_update()").arguments[0].must.be.eq({id: "testing"});
+        store.spy.getCall("_update()").arguments[1].must.be.eq({x: 123});
+        done();
+      });
+    });
+
+    test("remove(query, callback)", function(done) {
+      store.remove({id: "testing"}, function(error) {
+        assert(error === undefined);
+        store.spy.called("_remove()").must.be.eq(1);
+        store.spy.getCall("_remove()").arguments[0].must.be.eq({id: "testing"});
+        done();
       });
     });
   });

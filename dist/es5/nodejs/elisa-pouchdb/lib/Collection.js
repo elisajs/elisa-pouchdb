@@ -33,12 +33,10 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
 
-  function _class(schema, name, opts) {_classCallCheck(this, _class);
+  function _class(schema, name, opts) {_classCallCheck(this, _class);var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, 
+    schema, name, opts));
 
-    if (!opts) opts = {};var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, 
-
-
-    schema, name));
+    if (!opts) opts = {};
     Object.defineProperty(_this, "prefix", { value: opts.prefix || _this.qn + ":" });
     Object.defineProperty(_this, "sequence", { value: opts.sequence || _this.qn + ".__sequence_" });
     Object.defineProperty(_this, "view", { value: opts.view === true ? name : opts.view });return _this;}_createClass(_class, [{ key: "isView", value: function isView() 
@@ -91,7 +89,17 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
     id, callback) {
       if (this.isView()) viewEngine.hasId(this, id, callback);else 
-      dbEngine.hasId(this, id, callback);} }, { key: "_findAll", value: function _findAll(
+      dbEngine.hasId(this, id, callback);} }, { key: "_count", value: function _count(
+
+
+
+
+
+    opts, callback) {
+      this._findAll(opts, function (error, res) {
+        if (error) callback(error);else 
+        callback(undefined, res.length);});} }, { key: "_findAll", value: function _findAll(
+
 
 
 
@@ -135,11 +143,6 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
     docs, opts, callback) {
-
-      if (!opts) opts = {};
-      if (!callback) callback = function callback() {};
-
-
       if (docs instanceof Array) this[insertDocs](docs, opts, callback);else 
       this[insertDoc](docs, opts, callback);} }, { key: 
 
@@ -191,12 +194,7 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
     query, upd, opts, callback) {var _this6 = this;
-
-      if (!opts) opts = {};
-      if (!callback) callback = function callback() {};
-
-
-      this._find(query, {}, function (error, res) {
+      this.q().filter(query)._run({}, function (error, res) {
         var modify = function modify(i) {
           if (i < res.length) {
             var doc = res.docs[i];
@@ -224,13 +222,7 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
     query, opts, callback) {var _this7 = this;
-
-      if (!query) throw new Error("Query expected.");
-      if (!opts) opts = {};
-      if (!callback) callback = function callback() {};
-
-
-      this._find(query, {}, function (error, res) {
+      this.q().filter(query)._run({}, function (error, res) {
         var remove = function remove(i) {
           if (i < res.length) {
             _this7.client.remove(res.docs[i], opts, function (error) {

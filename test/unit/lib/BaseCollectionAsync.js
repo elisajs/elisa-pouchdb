@@ -1,6 +1,7 @@
 //imports
 const assert = require("assert");
 const justo = require("justo");
+const spy = require("justo-spy");
 const suite = justo.suite;
 const test = justo.test;
 const init = justo.init;
@@ -44,6 +45,10 @@ suite("Base Collection (Asynchronous Connection)", function() {
     cli.destroy(function(res) {
       cx.close(done);
     });
+  });
+
+  test("#hasInjection() : true", function() {
+    coll.hasInjection().must.be.eq(false);
   });
 
   test("#isView()", function() {
@@ -644,6 +649,60 @@ suite("Base Collection (Asynchronous Connection)", function() {
             done();
           });
         });
+      });
+    });
+  });
+
+  suite("Injection", function() {
+    init("*", function() {
+      coll = spy(db.getCollection("myschema.mycoll", {inject: {inj: "theValue"}}), [
+        "_insert()",
+        "_update()",
+        "_remove()"
+      ]);
+    });
+
+    test("#hasInjection() : true", function() {
+      coll.hasInjection().must.be.eq(true);
+    });
+
+    test("insert(doc, callback)", function(done) {
+      coll.insert({id: "new", x: 1}, function(error) {
+        assert(error === undefined);
+        coll.spy.called("_insert()").must.be.eq(1);
+        coll.spy.getCall("_insert()").arguments[0].must.be.eq({id: "new", x: 1, inj: "theValue"});
+        done();
+      });
+    });
+
+    test("insert(docs, callback)", function(done) {
+      coll.insert([{id: "new1", x: 1}, {id: "new2", x: 2}], function(error) {
+        assert(error === undefined);
+        coll.spy.called("_insert()").must.be.eq(1);
+        coll.spy.getCall("_insert()").arguments[0].must.be.eq([
+          {id: "new1", x: 1, inj: "theValue"},
+          {id: "new2", x: 2, inj: "theValue"}
+        ]);
+        done();
+      });
+    });
+
+    test("update(query, upd, callback)", function(done) {
+      coll.update({id: "testing"}, {x: 123}, function(error) {
+        assert(error === undefined);
+        coll.spy.called("_update()").must.be.eq(1);
+        coll.spy.getCall("_update()").arguments[0].must.be.eq({id: "testing", inj: "theValue"});
+        coll.spy.getCall("_update()").arguments[1].must.be.eq({x: 123});
+        done();
+      });
+    });
+
+    test("remove(query, callback)", function(done) {
+      coll.remove({id: "testing"}, function(error) {
+        assert(error === undefined);
+        coll.spy.called("_remove()").must.be.eq(1);
+        coll.spy.getCall("_remove()").arguments[0].must.be.eq({id: "testing", inj: "theValue"});
+        done();
       });
     });
   });

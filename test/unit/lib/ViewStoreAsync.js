@@ -230,15 +230,8 @@ suite("View Store (Asynchronous Connection)", function() {
       store.remove.bind(store).must.raise(Error, []);
     });
 
-    test("remove({})", function(done) {
-      store.remove({});
-      setTimeout(function() {
-        store.count(function(error, cnt) {
-          assert(error === undefined);
-          cnt.must.be.eq(4);
-          done();
-        });
-      }, 500);
+    test("remove({})", function() {
+      store.remove.bind(store).must.raise(Error, [{}]);
     });
 
     suite("Id doesn't exist", function() {
