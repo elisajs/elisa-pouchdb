@@ -40,9 +40,15 @@ DbEngine = function () {function DbEngine() {_classCallCheck(this, DbEngine);}_c
     src, opts, callback) {
       var cli = src.client;
 
-      cli.allDocs(Object.assign({ include_docs: true }, opts), function (error, docs) {
+
+      opts = Object.assign({ include_docs: true }, opts);
+      opts.startkey = src.prefix;
+      opts.endkey = src.prefix + "￿";
+
+
+      cli.allDocs(opts, function (error, res) {
         if (error) callback(error);else 
-        callback(undefined, new _Result2.default(filter(project(docs.rows, "doc", { top: true }), { _id: { $like: "^" + src.qn + ":" } })));});} }, { key: "findOne", value: function findOne(
+        callback(undefined, new _Result2.default(project(res.rows, "doc", { top: true })));});} }, { key: "findOne", value: function findOne(
 
 
 
