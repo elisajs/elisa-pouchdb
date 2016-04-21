@@ -12,17 +12,17 @@ const Result = require("../../../dist/es5/nodejs/elisa-pouchdb/lib/Result").defa
 suite("Store (Synchronous Connection)", function() {
   var drv, cx, store;
 
-  init(function() {
+  init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 
-  init("*", function() {
+  init({name: "*", title: "Open connection and get store"}, function() {
     cx = drv.openConnection({type: "sync"}, {});
     db = cx.db;
     store = db.getStore("myschema.mystore");
   });
 
-  fin("*", function(done) {
+  fin({name: "*", title: "Drop database"}, function(done) {
     db.client.destroy(function(err) {
       cx.close();
       done();
@@ -38,7 +38,7 @@ suite("Store (Synchronous Connection)", function() {
   });
 
   suite("#hasId()", function() {
-    init("It exists", function(done) {
+    init({name: "It exists", title: "Insert data"}, function(done) {
       store.client.put({id: "testing", x: 1, y: 2}, "myschema.mystore:testing", function(err) {
         assert(err === null);
         done();
@@ -62,7 +62,7 @@ suite("Store (Synchronous Connection)", function() {
     });
 
     suite("Id exists", function() {
-      init("*", function(done) {
+      init({name: "*", title: "Insert data"}, function(done) {
         store.client.put({id: "testing", x: 1, y: 2}, "myschema.mystore:testing", function(err) {
           assert(err === null);
           done();
@@ -80,7 +80,7 @@ suite("Store (Synchronous Connection)", function() {
   });
 
   suite("#findAll()", function() {
-    init("*", function(done) {
+    init({name: "*", title: "Insert data"}, function(done) {
       store.client.put({id: "one", x: 1, y: 2}, "myschema.mystore:one", function(res) {
         assert(res === null);
 
@@ -112,7 +112,7 @@ suite("Store (Synchronous Connection)", function() {
     });
 
     suite("With documents", function() {
-      init("*", function() {
+      init({name: "*", title: "Insert data"}, function() {
         store.insert([
           {id: "one", x: 1, y: 1},
           {id: "two", x: 1, y: 2},
@@ -149,7 +149,7 @@ suite("Store (Synchronous Connection)", function() {
       });
 
       suite("Id exists", function() {
-        init("*", function(done) {
+        init({name: "*", title: "Insert data"}, function(done) {
           store.client.put({a: 1, b: 2}, "myschema.mystore:testing", function(error) {
             assert(error === null);
             done();
@@ -186,7 +186,7 @@ suite("Store (Synchronous Connection)", function() {
       });
 
       suite("Some document exists", function() {
-        init("*", function() {
+        init({name: "*", title: "Insert data"}, function() {
           store.insert({id: "one", x: 1});
         });
 
@@ -213,7 +213,7 @@ suite("Store (Synchronous Connection)", function() {
     });
 
     suite("Id exists", function() {
-      init("*", function(done) {
+      init({name: "*", title: "Insert data"}, function(done) {
         store.client.put({x: 1, y: 2, z: 3}, "myschema.mystore:testing", function(res) {
           assert(res === null);
           store.client.get("myschema.mystore:testing", function(res, doc) {
@@ -251,7 +251,7 @@ suite("Store (Synchronous Connection)", function() {
     });
 
     suite("Id exists", function() {
-      init("*", function(done) {
+      init({name: "*", title: "Insert data"}, function(done) {
         store.client.put({id: "testing", x: 1, y: 2, z: 3}, "myschema.mystore:testing", function(res) {
           assert(res === null);
           store.client.get("myschema.mystore:testing", function(res, doc) {

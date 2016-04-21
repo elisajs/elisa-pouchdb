@@ -11,12 +11,12 @@ suite("Server", function() {
   const DATA = "test/unit/data";
   var drv, cx, svr;
 
-  init(function() {
+  init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 
   suite("Local database", function() {
-    init(function(done) {
+    init({title: "Open connection and get server"}, function(done) {
       drv.openConnection({db: "elisa", location: DATA}, function(error, con) {
         cx = con;
         svr = cx.server;
@@ -24,7 +24,7 @@ suite("Server", function() {
       });
     });
 
-    fin(function(done) {
+    fin({title: "Drop database"}, function(done) {
       cx.client.destroy(done);
     });
 
@@ -42,7 +42,7 @@ suite("Server", function() {
   });
 
   suite("In-memory database", function() {
-    init(function(done) {
+    init({title: "Open connection and get server"}, function(done) {
       drv.openConnection({}, function(error, con) {
         cx = con;
         svr = cx.server;
@@ -64,7 +64,7 @@ suite("Server", function() {
   });
 
   suite("Remote database", function() {
-    init(function(done) {
+    init({title: "Open connection and get server"}, function(done) {
       drv.openConnection({host: "localhost", port: 5985}, function(error, con) {
         cx = con;
         svr = cx.server;

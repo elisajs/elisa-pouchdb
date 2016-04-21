@@ -13,17 +13,17 @@ const Result = require("../../../dist/es5/nodejs/elisa-pouchdb/lib/Result").defa
 suite("Collection (Synchronous Connection)", function() {
   var drv, cx, db, coll;
 
-  init(function() {
+  init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 
-  init("*", function() {
+  init({name: "*", title: "Open connection and get collection"}, function() {
     cx = drv.openConnection({type: "sync"}, {});
     db = cx.db;
     coll = db.getCollection("myschema.mycoll");
   });
 
-  fin("*", function(done) {
+  fin({name: "*", title: "Drop database"}, function(done) {
     db.client.destroy(function(res) {
       cx.close();
       done();
@@ -45,7 +45,7 @@ suite("Collection (Synchronous Connection)", function() {
   });
 
   suite("#hasId()", function() {
-    init("It exists", function(done) {
+    init({name: "It exists", title: "Insert data"}, function(done) {
       coll.client.put({id: "testing", x: 1, y: 2}, "myschema.mycoll:testing", function(err) {
         assert(err === null);
         done();
@@ -62,7 +62,7 @@ suite("Collection (Synchronous Connection)", function() {
   });
 
   suite("Find", function() {
-    init("*", function(done) {
+    init({name: "*", title: "Insert data"}, function(done) {
       coll.client.bulkDocs([
         {_id: "myschema.mycoll:1", x: 1, c: 1},
         {_id: "myschema.mycoll:2", x: 2, c: 1},
@@ -128,7 +128,7 @@ suite("Collection (Synchronous Connection)", function() {
     });
 
     suite("With documents", function() {
-      init("*", function() {
+      init({name: "*", title: "Insert data"}, function() {
         coll.insert([
           {x: 1, y: 1},
           {x: 1, y: 2},
@@ -250,7 +250,7 @@ suite("Collection (Synchronous Connection)", function() {
   });
 
   suite("#update()", function() {
-    init("*", function() {
+    init({name: "*", title: "Insert data"}, function() {
       coll.insert([
         {x: 1, y: 1},
         {x: 2, y: 2},
@@ -311,7 +311,7 @@ suite("Collection (Synchronous Connection)", function() {
   });
 
   suite("#remove()", function() {
-    init("*", function() {
+    init({name: "*", title: "Insert data"}, function() {
       coll.insert([
         {x: 1, y: 2},
         {x: 2, y: 2},

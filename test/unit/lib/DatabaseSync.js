@@ -14,11 +14,11 @@ const Collection = require("../../../dist/es5/nodejs/elisa-pouchdb/lib/Collectio
 suite("Database (Synchronous Connection)", function() {
   var drv, cx, db;
 
-  init(function() {
+  init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 
-  init(function() {
+  init({title: "Open connection"}, function() {
     cx = drv.openConnection({type: "sync"}, {});
     db = cx.db;
   });

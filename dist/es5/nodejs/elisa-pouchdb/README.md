@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/elisajs/elisa-pouchdb.svg?branch=master)](https://travis-ci.org/elisajs/elisa-pouchdb)
+[![Dependency Status](https://david-dm.org/elisajs/elisa-pouchdb.svg)](https://david-dm.org/elisajs/elisa-pouchdb)
+[![devDependency Status](https://david-dm.org/elisajs/elisa-pouchdb/dev-status.svg)](https://david-dm.org/elisajs/elisa-pouchdb#info=devDependencies)
 
 *PouchDB* *Elisa.js* driver.
 

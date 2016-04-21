@@ -13,11 +13,11 @@ const Result = require("../../../dist/es5/nodejs/elisa-pouchdb/lib/Result").defa
 suite("Base Store (Asynchronous Connection)", function() {
   var drv, cx, cli, db, store;
 
-  init(function() {
+  init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 
-  init("*", function(done) {
+  init({name: "*", title: "Open connection and get store"}, function(done) {
     drv.openConnection({}, function(error, con) {
       cx = con;
       db = cx.db;
@@ -27,7 +27,7 @@ suite("Base Store (Asynchronous Connection)", function() {
     });
   });
 
-  init("*", function(done) {
+  init({name: "*", title: "Insert data"}, function(done) {
     cli.bulkDocs([
       {_id: "myschema.mystore:one", id: "one", x: 1, y: 1},
       {_id: "myschema.mystore:two", id: "two", x: 1, y: 2},
@@ -39,7 +39,7 @@ suite("Base Store (Asynchronous Connection)", function() {
     ], done);
   });
 
-  fin("*", function(done) {
+  fin({name: "*", title: "Drop database"}, function(done) {
     cli.destroy(function(err) {
       cx.close(done);
     });
@@ -116,7 +116,7 @@ suite("Base Store (Asynchronous Connection)", function() {
 
   suite("#count()", function() {
     suite("Without documents", function() {
-      init("*", function() {
+      init({name: "*", title: "Get store"}, function() {
         store = db.getStore("myschema.empty");
       });
 
@@ -442,7 +442,7 @@ suite("Base Store (Asynchronous Connection)", function() {
   });
 
   suite("Injection", function() {
-    init("*", function() {
+    init({name: "*", title: "Get store"}, function() {
       store = spy(db.getStore("myschema.mystore", {inject: {inj: "theValue"}}), [
         "_findOne()",
         "_insert()",

@@ -12,7 +12,7 @@ const Connection = require("../../../dist/es5/nodejs/elisa-pouchdb/lib/Connectio
 suite("Driver", function() {
   var drv;
 
-  init(function() {
+  init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 

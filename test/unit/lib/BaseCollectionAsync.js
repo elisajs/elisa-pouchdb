@@ -14,11 +14,11 @@ const Result = require("../../../dist/es5/nodejs/elisa-pouchdb/lib/Result").defa
 suite("Base Collection (Asynchronous Connection)", function() {
   var drv, cx, db, coll, cli;
 
-  init(function() {
+  init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 
-  init("*", function(done) {
+  init({name: "*", title: "Open connection and get collection"}, function(done) {
     drv.openConnection({}, function(error, con) {
       cx = con;
       db = cx.db;
@@ -28,7 +28,7 @@ suite("Base Collection (Asynchronous Connection)", function() {
     });
   });
 
-  init("*", function(done) {
+  init({name: "*", title: "Insert data"}, function(done) {
     cli.bulkDocs([
       {_id: "myschema.mycoll:one", id: "one", x: 1, c: 1},
       {_id: "myschema.mycoll:two", id: "two", x: 2, c: 1},
@@ -41,7 +41,7 @@ suite("Base Collection (Asynchronous Connection)", function() {
     ], done);
   });
 
-  fin("*", function(done) {
+  fin({name: "*", title: "Drop database"}, function(done) {
     cli.destroy(function(res) {
       cx.close(done);
     });
@@ -149,7 +149,7 @@ suite("Base Collection (Asynchronous Connection)", function() {
 
   suite("#count()", function() {
     suite("Without documents", function() {
-      init("*", function() {
+      init({name: "*", title: "Get collection"}, function() {
         coll = db.getCollection("myschema.empty");
       });
 
@@ -654,7 +654,7 @@ suite("Base Collection (Asynchronous Connection)", function() {
   });
 
   suite("Injection", function() {
-    init("*", function() {
+    init({name: "*", title: "Get collection"}, function() {
       coll = spy(db.getCollection("myschema.mycoll", {inject: {inj: "theValue"}}), [
         "_insert()",
         "_update()",

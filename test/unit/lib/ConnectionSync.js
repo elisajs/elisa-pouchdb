@@ -14,14 +14,14 @@ suite("Connection (Synchronous Connection)", function() {
   const DATA = "test/unit/data";
   var drv;
 
-  init(function() {
+  init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 
   suite("#db", function() {
     var cx;
 
-    init("*", function(done) {
+    init({name: "*", title: "Open connection"}, function(done) {
       drv.openConnection({}, function(err, con) {
         cx = con;
         done();
@@ -40,7 +40,7 @@ suite("Connection (Synchronous Connection)", function() {
     suite("In-memory database", function() {
       var cx;
 
-      init("*", function() {
+      init({name: "*", title: "Create connection"}, function() {
         cx = drv.createConnection({type: "sync"}, {});
       });
 
@@ -55,11 +55,11 @@ suite("Connection (Synchronous Connection)", function() {
     suite("Local database", function() {
       var cx;
 
-      init("*", function() {
+      init({name: "*", title: "Create connection"}, function() {
         cx = drv.createConnection({type: "sync"}, {db: "mydb", location: DATA});
       });
 
-      fin("*", function(done) {
+      fin({name: "*", title: "Drop database"}, function(done) {
         cx.client.destroy(done);
       });
 
@@ -75,11 +75,11 @@ suite("Connection (Synchronous Connection)", function() {
       suite("PouchDB Server", function() {
         var cx;
 
-        init("*", function() {
+        init({name: "*", title: "Create connection"}, function() {
           cx = drv.createConnection({type: "sync"}, {host: "localhost", port: 5985, db: "elisa"});
         });
 
-        fin("*", function(done) {
+        fin({name: "*", title: "Drop database"}, function(done) {
           cx.client.destroy(done);
         });
 
@@ -98,11 +98,11 @@ suite("Connection (Synchronous Connection)", function() {
       suite("CouchDB", function() {
         var cx;
 
-        init("*", function() {
+        init({name: "*", title: "Create connection"}, function() {
           cx = drv.createConnection({type: "sync"}, {host: "localhost", port: 5984, db: "elisa"});
         });
 
-        fin("*", function(done) {
+        fin({name: "*", title: "Drop database"}, function(done) {
           cx.client.destroy(done);
         });
 
@@ -123,7 +123,7 @@ suite("Connection (Synchronous Connection)", function() {
   suite("#close()", function() {
     var cx;
 
-    init("*", function() {
+    init({name: "*", title: "Open connection"}, function() {
       cx = drv.openConnection({type: "sync"}, {});
     });
 
@@ -137,7 +137,7 @@ suite("Connection (Synchronous Connection)", function() {
   suite("#connected()", function() {
     var cx;
 
-    init("*", function() {
+    init({name: "*", title: "Open connection"}, function() {
       cx = drv.openConnection({type: "sync"}, {});
     });
 

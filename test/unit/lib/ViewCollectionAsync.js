@@ -13,11 +13,11 @@ const Result = require("../../../dist/es5/nodejs/elisa-pouchdb/lib/Result").defa
 suite("View Collection (Asynchronous Connection)", function() {
   var drv, cx, db, coll, client;
 
-  init(function() {
+  init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 
-  init("*", function(done) {
+  init({name: "*", title: "Open connection and get collection"}, function(done) {
     drv.openConnection({}, function(error, con) {
       cx = con;
       client = cx.client;
@@ -27,7 +27,7 @@ suite("View Collection (Asynchronous Connection)", function() {
     });
   });
 
-  init("*", function(done) {
+  init({name: "*", title: "Create design document and insert data"}, function(done) {
     client.put({
       _id: "_design/mysch",
       views: {
@@ -53,7 +53,7 @@ suite("View Collection (Asynchronous Connection)", function() {
     });
   });
 
-  fin("*", function(done) {
+  fin({name: "*", title: "Drop database"}, function(done) {
     client.destroy(function(res) {
       cx.close(done);
     });

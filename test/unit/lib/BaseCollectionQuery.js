@@ -11,11 +11,11 @@ const Driver = require("../../../dist/es5/nodejs/elisa-pouchdb").Driver;
 suite("CollectionQuery", function() {
   var drv, cx, db, cli;
 
-  init(function() {
+  init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 
-  init(function(done) {
+  init({title: "Open connection"}, function(done) {
     drv.openConnection({}, function(error, con) {
       cx = con;
       db = cx.db;
@@ -24,7 +24,7 @@ suite("CollectionQuery", function() {
     });
   });
 
-  init(function(done) {
+  init({title: "Insert data"}, function(done) {
     cli.bulkDocs([
       {_id: "myschema.mycoll:1", x: 1, c: 1},
       {_id: "myschema.mycoll:2", x: 2, c: 1},
@@ -37,7 +37,7 @@ suite("CollectionQuery", function() {
     ], done);
   });
 
-  fin(function(done) {
+  fin({title: "Drop database"}, function(done) {
     cli.destroy(function(err) {
       cx.close(done);
     });
@@ -46,7 +46,7 @@ suite("CollectionQuery", function() {
   suite("Asynchronous connection", function() {
     var coll, q;
 
-    init("*", function(done) {
+    init({name: "*", title: "Get collection"}, function(done) {
       drv.openConnection({}, function(error, con) {
         coll = con.db.getCollection("myschema.mycoll");
         q = coll.q();
@@ -292,7 +292,7 @@ suite("CollectionQuery", function() {
   suite("Synchronous connection", function() {
     var coll, q;
 
-    init("*", function() {
+    init({name: "*", title: "Get collection"}, function() {
       coll = drv.openConnection({type: "sync"}, {}).db.getCollection("myschema.mycoll");
       q = coll.q();
     });
@@ -365,7 +365,7 @@ suite("CollectionQuery", function() {
   suite("Injection", function() {
     var coll, q;
 
-    init("*", function(done) {
+    init({name: "*", title: "Get collection and query"}, function(done) {
       drv.openConnection({}, function(error, con) {
         coll = con.db.getCollection("myschema.mycoll", {inject: {c: 1}});
         q = coll.q();
