@@ -2,9 +2,11 @@
 [![Dependency Status](https://david-dm.org/elisajs/elisa-pouchdb.svg)](https://david-dm.org/elisajs/elisa-pouchdb)
 [![devDependency Status](https://david-dm.org/elisajs/elisa-pouchdb/dev-status.svg)](https://david-dm.org/elisajs/elisa-pouchdb#info=devDependencies)
 
-*PouchDB* *Elisa.js* driver.
+*PouchDB* *Elisa.js* driver. This driver complies with [Elisa 0.3 spec](https://github.com/elisajs/elisa).
 
-Features:
+*Proudly made with ♥ in Valencia, Spain, EU.*
+
+# Features
 
 - This driver allows to use the *schema* concept.
 - This driver can work with key-value stores and document collections.
@@ -58,7 +60,7 @@ var cx = driver.createConnection({});
 
 ## Connection to remote database
 
-We can connect to a *PouchDB Server* or a *CouchDB*:
+We can connect to a *PouchDB Server* or a *CouchDB* server:
 
 ```
 var cx = driver.createConnection({
@@ -71,6 +73,9 @@ var cx = driver.createConnection({
   skipSetup: true|false
 });
 ```
+
+To indicate a remote connection, we must indicate `protocol`, `host`, `port` or
+`username` as minimum.
 
 When the server has no authentication, we can skip `username` and `password`.
 

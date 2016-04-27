@@ -33,7 +33,10 @@ _pouchdb2.default.plugin(require("pouchdb-find"));var _class = function (_Connec
 
       opts = {};
 
-      if (config.hasOwnProperty("host")) {
+      if (config.hasOwnProperty("protocol") || 
+      config.hasOwnProperty("host") || 
+      config.hasOwnProperty("port") || 
+      config.hasOwnProperty("username")) {
         type = "remote";
         config.port = config.port || 5984;
         name = (config.protocol || "http") + "://" + config.host + ":" + config.port + "/" + config.db;
@@ -98,5 +101,9 @@ _pouchdb2.default.plugin(require("pouchdb-find"));var _class = function (_Connec
 
 
     callback) {
-      if (this.opened) callback();else 
-      callback(new Error("Connection closed."));} }, { key: "server", get: function get() {return new _Server2.default(this);} }, { key: "opened", get: function get() {return !!this.client;} }, { key: "database", get: function get() {return new _Database2.default(this, this.options.db || "in-memory");} }]);return _class;}(_elisa.Connection);exports.default = _class;
+      if (this.opened) {
+        this.client.info(function (error, res) {
+          callback(undefined, !error);});} else 
+
+      {
+        callback(new Error("Connection closed."));}} }, { key: "server", get: function get() {return new _Server2.default(this);} }, { key: "opened", get: function get() {return !!this.client;} }, { key: "database", get: function get() {return new _Database2.default(this, this.options.db || "in-memory");} }]);return _class;}(_elisa.Connection);exports.default = _class;

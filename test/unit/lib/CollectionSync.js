@@ -97,7 +97,7 @@ suite("Collection (Synchronous Connection)", function() {
       });
     });
 
-    suite.only("#findOne()", function() {
+    suite("#findOne()", function() {
       test("findOne(filter) : object", function() {
         const doc = coll.findOne({x: 1});
         doc._id.must.match(/^myschema.mycoll:/);
