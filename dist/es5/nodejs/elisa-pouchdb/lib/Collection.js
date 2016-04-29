@@ -13,9 +13,8 @@ var dbEngine = new _DbEngine2.default();
 
 
 var insertDocs = Symbol();
-var insertDoc = Symbol();
-var insertDocWithId = Symbol();
-var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits(_class, _Collection);
+var insertDoc = Symbol();var _class = function (_Collection) {_inherits(_class, _Collection);
+
 
 
 
@@ -38,8 +37,9 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
     if (!opts) opts = {};
     Object.defineProperty(_this, "prefix", { value: opts.prefix || _this.qn + ":" });
-    Object.defineProperty(_this, "sequence", { value: opts.sequence || _this.qn + ".__sequence_" });
-    Object.defineProperty(_this, "view", { value: opts.view === true ? name : opts.view });return _this;}_createClass(_class, [{ key: "isView", value: function isView() 
+    Object.defineProperty(_this, "view", { value: opts.view === true ? name : opts.view });
+    Object.defineProperty(_this, "id", { value: opts.id || "uuid" });
+    Object.defineProperty(_this, "sequence", { value: opts.sequence || _this.qn + ".__sequence_" });return _this;}_createClass(_class, [{ key: "isView", value: function isView() 
 
 
 
@@ -148,37 +148,13 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
     insertDoc, value: function value(doc, opts, callback) {
-      if (doc.hasOwnProperty("id")) this[insertDocWithId](doc, opts, callback);else 
-      this[insertDocWithoutId](doc, opts, callback);} }, { key: 
+      dbEngine.insert(this, doc, opts, callback);} }, { key: 
 
 
-    insertDocWithId, value: function value(doc, opts, callback) {var _this3 = this;
-      this._hasId(doc.id, function (error, exists) {
-        if (error) return callback(error);
-        if (exists) return callback(new Error("Id already exists."));
-
-        _this3.client.put(doc, _this3.key(doc.id), opts, function (res) {
-          if (res && res.error) callback(res);else 
-          callback();});});} }, { key: 
-
-
-
-
-    insertDocWithoutId, value: function value(doc, opts, callback) {var _this4 = this;
-      this.nextSequenceValue(function (error, value) {
-        if (error) return callback(error);
-        doc.id = value;
-        _this4.client.put(doc, _this4.key(doc.id), opts, function (res) {
-          if (res && res.error) callback(res);else 
-          callback();});});} }, { key: 
-
-
-
-
-    insertDocs, value: function value(docs, opts, callback) {var _this5 = this;
+    insertDocs, value: function value(docs, opts, callback) {var _this3 = this;
       var insert = function insert(i) {
         if (i < docs.length) {
-          _this5[insertDoc](docs[i], opts, function (error) {
+          _this3[insertDoc](docs[i], opts, function (error) {
             if (error) callback(error);else 
             insert(i + 1);});} else 
 
@@ -193,7 +169,7 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
 
-    query, upd, opts, callback) {var _this6 = this;
+    query, upd, opts, callback) {var _this4 = this;
       this.q().filter(query)._run({}, function (error, res) {
         var modify = function modify(i) {
           if (i < res.length) {
@@ -202,7 +178,7 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
             if (check(doc, query)) {
               update(doc, upd);
 
-              _this6.client.put(doc, function (res) {
+              _this4.client.put(doc, function (res) {
                 if (res && res.error) callback(res);else 
                 modify(i + 1);});} else 
 
@@ -221,11 +197,11 @@ var insertDocWithoutId = Symbol();var _class = function (_Collection) {_inherits
 
 
 
-    query, opts, callback) {var _this7 = this;
+    query, opts, callback) {var _this5 = this;
       this.q().filter(query)._run({}, function (error, res) {
         var remove = function remove(i) {
           if (i < res.length) {
-            _this7.client.remove(res.docs[i], opts, function (error) {
+            _this5.client.remove(res.docs[i], opts, function (error) {
               if (error) callback(error);else 
               remove(i + 1);});} else 
 

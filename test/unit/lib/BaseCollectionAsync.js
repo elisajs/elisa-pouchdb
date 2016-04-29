@@ -12,18 +12,17 @@ const Result = require("../../../dist/es5/nodejs/elisa-pouchdb/lib/Result").defa
 
 //suite
 suite("Base Collection (Asynchronous Connection)", function() {
-  var drv, cx, db, coll, cli;
+  var drv, cx, db, cli;
 
   init({title: "Get driver"}, function() {
     drv = Driver.getDriver("PouchDB");
   });
 
-  init({name: "*", title: "Open connection and get collection"}, function(done) {
+  init({name: "*", title: "Open connection"}, function(done) {
     drv.openConnection({}, function(error, con) {
       cx = con;
       db = cx.db;
       cli = db.client;
-      coll = db.getCollection("myschema.mycoll");
       done();
     });
   });
@@ -47,149 +46,163 @@ suite("Base Collection (Asynchronous Connection)", function() {
     });
   });
 
-  test("#hasInjection() : true", function() {
-    coll.hasInjection().must.be.eq(false);
-  });
+  suite("DQL", function() {
+    var coll;
 
-  test("#isView()", function() {
-    coll.isView().must.be.eq(false);
-  });
+    init({name: "*", title: "Get collection"}, function() {
+      coll = db.getCollection("myschema.mycoll");
+    });
 
-  test("#qn", function() {
-    coll.qn.must.be.eq("myschema.mycoll");
-  });
+    test("#hasInjection() : true", function() {
+      coll.hasInjection().must.be.eq(false);
+    });
 
-  test("#fqn", function() {
-    coll.fqn.must.be.eq("in-memory.myschema.mycoll");
-  });
+    test("#isView()", function() {
+      coll.isView().must.be.eq(false);
+    });
 
-  test("#q()", function() {
-    var q = coll.q();
-    q.must.be.instanceOf(CollectionQuery);
-    q.source.must.be.same(coll);
-  });
+    test("#qn", function() {
+      coll.qn.must.be.eq("myschema.mycoll");
+    });
 
-  suite("#hasId()", function() {
-    test("It exists", function(done) {
-      coll.hasId("one", function(error, exists) {
-        assert(error === undefined);
-        exists.must.be.eq(true);
-        done();
+    test("#fqn", function() {
+      coll.fqn.must.be.eq("in-memory.myschema.mycoll");
+    });
+
+    test("#q()", function() {
+      var q = coll.q();
+      q.must.be.instanceOf(CollectionQuery);
+      q.source.must.be.same(coll);
+    });
+
+    suite("#hasId()", function() {
+      test("It exists", function(done) {
+        coll.hasId("one", function(error, exists) {
+          assert(error === undefined);
+          exists.must.be.eq(true);
+          done();
+        });
+      });
+
+      test("It doesn't exist", function(done) {
+        coll.hasId("unknown", function(error, exists) {
+          assert(error === undefined);
+          exists.must.be.eq(false);
+          done();
+        });
       });
     });
 
-    test("It doesn't exist", function(done) {
-      coll.hasId("unknown", function(error, exists) {
-        assert(error === undefined);
-        exists.must.be.eq(false);
-        done();
+    suite("#find()", function() {
+      test("find(filter, callback)", function(done) {
+        coll.find({x: {$between: [1, 2]}}, function(error, res) {
+          assert(error === undefined);
+          res.length.must.be.eq(2);
+          for (var i = 0; i < res.length; ++i) {
+            var doc = res.docs[i];
+            doc.x.must.be.between(1, 2);
+            doc._id.must.match(/^myschema.mycoll:/);
+          }
+          done();
+        });
+      });
+
+      test("find(filter, opts, callback)", function(done) {
+        coll.find({x: {$between: [1, 2]}}, {}, function(error, res) {
+          assert(error === undefined);
+          res.length.must.be.eq(2);
+          for (var i = 0; i < res.length; ++i) {
+            var doc = res.docs[i];
+            doc.x.must.be.between(1, 2);
+            doc._id.must.match(/^myschema.mycoll:/);
+          }
+          done();
+        });
       });
     });
-  });
 
-  suite("#find()", function() {
-    test("find(filter, callback)", function(done) {
-      coll.find({x: {$between: [1, 2]}}, function(error, res) {
-        assert(error === undefined);
-        res.length.must.be.eq(2);
-        for (var i = 0; i < res.length; ++i) {
-          var doc = res.docs[i];
-          doc.x.must.be.between(1, 2);
+    suite("#findOne()", function() {
+      test("findOne(filter, callback)", function(done) {
+        coll.findOne({x: 1}, function(error, doc) {
+          assert(error === undefined);
           doc._id.must.match(/^myschema.mycoll:/);
-        }
-        done();
+          doc.x.must.be.eq(1);
+          done();
+        });
       });
-    });
 
-    test("find(filter, opts, callback)", function(done) {
-      coll.find({x: {$between: [1, 2]}}, {}, function(error, res) {
-        assert(error === undefined);
-        res.length.must.be.eq(2);
-        for (var i = 0; i < res.length; ++i) {
-          var doc = res.docs[i];
-          doc.x.must.be.between(1, 2);
+      test("findOne(filter, opts, callback)", function(done) {
+        coll.findOne({x: 1}, {}, function(error, doc) {
+          assert(error === undefined);
           doc._id.must.match(/^myschema.mycoll:/);
-        }
-        done();
-      });
-    });
-  });
-
-  suite("#findOne()", function() {
-    test("findOne(filter, callback)", function(done) {
-      coll.findOne({x: 1}, function(error, doc) {
-        assert(error === undefined);
-        doc._id.must.match(/^myschema.mycoll:/);
-        doc.x.must.be.eq(1);
-        done();
-      });
-    });
-
-    test("findOne(filter, opts, callback)", function(done) {
-      coll.findOne({x: 1}, {}, function(error, doc) {
-        assert(error === undefined);
-        doc._id.must.match(/^myschema.mycoll:/);
-        doc.x.must.be.eq(1);
-        done();
-      });
-      done();
-    });
-  });
-
-  suite("#findAll()", function() {
-    test("findAll(callback)", function(done) {
-      coll.findAll(function(error, res) {
-        assert(error === undefined);
-        res.length.must.be.eq(6);
-        for (var i = 0; i < res.length; ++i) res.docs[i]._id.must.match(/^myschema.mycoll:/);
-        done();
-      });
-    });
-  });
-
-  suite("#count()", function() {
-    suite("Without documents", function() {
-      init({name: "*", title: "Get collection"}, function() {
-        coll = db.getCollection("myschema.empty");
-      });
-
-      test("count(callback)", function(done) {
-        coll.count(function(error, count) {
-          assert(error === undefined);
-          count.must.be.eq(0);
+          doc.x.must.be.eq(1);
           done();
         });
+        done();
       });
+    });
 
-      test("count(opts, callback)", function(done) {
-        coll.count({}, function(error, count) {
+    suite("#findAll()", function() {
+      test("findAll(callback)", function(done) {
+        coll.findAll(function(error, res) {
           assert(error === undefined);
-          count.must.be.eq(0);
+          res.length.must.be.eq(6);
+          for (var i = 0; i < res.length; ++i) res.docs[i]._id.must.match(/^myschema.mycoll:/);
           done();
         });
       });
     });
 
-    suite("With documents", function() {
-      test("count(callback)", function(done) {
-        coll.count(function(error, count) {
-          assert(error === undefined);
-          count.must.be.eq(6);
-          done();
+    suite("#count()", function() {
+      suite("Without documents", function() {
+        init({name: "*", title: "Get collection"}, function() {
+          coll = db.getCollection("myschema.empty");
+        });
+
+        test("count(callback)", function(done) {
+          coll.count(function(error, count) {
+            assert(error === undefined);
+            count.must.be.eq(0);
+            done();
+          });
+        });
+
+        test("count(opts, callback)", function(done) {
+          coll.count({}, function(error, count) {
+            assert(error === undefined);
+            count.must.be.eq(0);
+            done();
+          });
         });
       });
 
-      test("count(opts, callback)", function(done) {
-        coll.count({}, function(error, count) {
-          assert(error === undefined);
-          count.must.be.eq(6);
-          done();
+      suite("With documents", function() {
+        test("count(callback)", function(done) {
+          coll.count(function(error, count) {
+            assert(error === undefined);
+            count.must.be.eq(6);
+            done();
+          });
+        });
+
+        test("count(opts, callback)", function(done) {
+          coll.count({}, function(error, count) {
+            assert(error === undefined);
+            count.must.be.eq(6);
+            done();
+          });
         });
       });
     });
   });
 
   suite("#nextSequenceValue()", function() {
+    var coll;
+
+    init({name: "*", title: "Get collection"}, function() {
+      coll = db.getCollection("myschema.mycoll");
+    });
+
     test("nextSequenceValue(callback) - Sequence doesn't exist", function(done) {
       coll.nextSequenceValue(function(error, value) {
         assert(error === undefined);
@@ -214,6 +227,12 @@ suite("Base Collection (Asynchronous Connection)", function() {
   suite("#insert()", function() {
     suite("One document", function() {
       suite("With explicit id", function() {
+        var coll;
+
+        init({name: "*", title: "Get collection"}, function() {
+          coll = db.getCollection("myschema.mycoll");
+        });
+
         test("insert(doc)", function(done) {
           coll.insert({id: 111, x: 1, y: 2});
 
@@ -287,81 +306,54 @@ suite("Base Collection (Asynchronous Connection)", function() {
               error.message.must.be.eq("Id already exists.");
               done();
             });
-          })
+          });
         });
       });
 
       suite("Without explicit id", function() {
-        test("insert(doc)", function(done) {
-          coll.insert({x: 1, y: 2});
+        suite("Sequence", function() {
+          var coll;
 
-          setTimeout(function() {
-            coll.findOne({id: 1}, function(error, doc) {
-              assert(error === undefined);
-              doc.must.have({
-                _id: "myschema.mycoll:1",
-                id: 1,
-                x: 1,
-                y: 2
-              });
-              done();
-            });
-          }, 500);
-        });
-
-        test("insert(doc, opts)", function(done) {
-          coll.insert({x: 1, y: 2}, {});
-
-          setTimeout(function() {
-            coll.findOne({id: 1}, function(error, doc) {
-              assert(error === undefined);
-              doc.must.have({
-                _id: "myschema.mycoll:1",
-                id: 1,
-                x: 1,
-                y: 2
-              });
-              done();
-            });
-          }, 500);
-        });
-
-        test("insert(doc, callback)", function(done) {
-          coll.insert({x: 1, y: 2}, function(error) {
-            assert(error === undefined);
-            coll.findOne({id: 1}, function(error, doc) {
-              assert(error === undefined);
-              doc.must.have({
-                _id: "myschema.mycoll:1",
-                id: 1,
-                x: 1,
-                y: 2
-              });
-              done();
-            });
+          init({name: "*", title: "Get collection"}, function() {
+            coll = db.getCollection("myschema.mycoll", {id: "sequence"});
           });
-        });
 
-        test("insert(doc, opts, callback)", function(done) {
-          coll.insert({x: 1, y: 2}, {}, function(error) {
-            assert(error === undefined);
-            coll.findOne({id: 1}, function(error, doc) {
-              assert(error === undefined);
-              doc.must.have({
-                _id: "myschema.mycoll:1",
-                id: 1,
-                x: 1,
-                y: 2
+          test("insert(doc)", function(done) {
+            coll.insert({x: 1, y: 2});
+
+            setTimeout(function() {
+              coll.findOne({id: 1}, function(error, doc) {
+                assert(error === undefined);
+                doc.must.have({
+                  _id: "myschema.mycoll:1",
+                  id: 1,
+                  x: 1,
+                  y: 2
+                });
+                done();
               });
-              done();
-            });
+            }, 500);
           });
-        });
 
-        test("insert(doc, callback) - several inserts", function(done) {
-          coll.insert({x: 1, y: 2}, function(error) {
-            assert(error === undefined);
-            coll.insert({x: 2, y: 1}, function(error) {
+          test("insert(doc, opts)", function(done) {
+            coll.insert({x: 1, y: 2}, {});
+
+            setTimeout(function() {
+              coll.findOne({id: 1}, function(error, doc) {
+                assert(error === undefined);
+                doc.must.have({
+                  _id: "myschema.mycoll:1",
+                  id: 1,
+                  x: 1,
+                  y: 2
+                });
+                done();
+              });
+            }, 500);
+          });
+
+          test("insert(doc, callback)", function(done) {
+            coll.insert({x: 1, y: 2}, function(error) {
               assert(error === undefined);
               coll.findOne({id: 1}, function(error, doc) {
                 assert(error === undefined);
@@ -371,16 +363,97 @@ suite("Base Collection (Asynchronous Connection)", function() {
                   x: 1,
                   y: 2
                 });
-                coll.findOne({id: 2}, function(error, doc) {
-                  assert(error === undefined);
-                  doc.must.have({
-                    _id: "myschema.mycoll:2",
-                    id: 2,
-                    x: 2,
-                    y: 1
-                  });
-                  done();
+                done();
+              });
+            });
+          });
+
+          test("insert(doc, opts, callback)", function(done) {
+            coll.insert({x: 1, y: 2}, {}, function(error) {
+              assert(error === undefined);
+              coll.findOne({id: 1}, function(error, doc) {
+                assert(error === undefined);
+                doc.must.have({
+                  _id: "myschema.mycoll:1",
+                  id: 1,
+                  x: 1,
+                  y: 2
                 });
+                done();
+              });
+            });
+          });
+        });
+
+        suite("UUID", function() {
+          var coll;
+
+          init({name: "*", title: "Get collection"}, function() {
+            coll = db.getCollection("myschema.mycoll");
+          });
+
+          test("insert(doc)", function(done) {
+            coll.insert({x: 1, y: 2});
+
+            setTimeout(function() {
+              coll.findOne({id: {$like: ".{8}-.{4}-.{4}-.{4}-.{12}"}}, function(error, doc) {
+                assert(error === undefined);
+                doc.must.have({
+                  x: 1,
+                  y: 2
+                });
+                doc._id.must.match(/^myschema\.mycoll:.{8}-.{4}-.{4}-.{4}-.{12}$/);
+                doc.id.must.match(/^.{8}-.{4}-.{4}-.{4}-.{12}$/);
+                done();
+              });
+            }, 500);
+          });
+
+          test("insert(doc, opts)", function(done) {
+            coll.insert({x: 1, y: 2}, {});
+
+            setTimeout(function() {
+              coll.findOne({id: {$like: ".{8}-.{4}-.{4}-.{4}-.{12}"}}, function(error, doc) {
+                assert(error === undefined);
+                doc.must.have({
+                  x: 1,
+                  y: 2
+                });
+                doc._id.must.match(/^myschema\.mycoll:.{8}-.{4}-.{4}-.{4}-.{12}$/);
+                doc.id.must.match(/^.{8}-.{4}-.{4}-.{4}-.{12}$/);
+                done();
+              });
+            }, 500);
+          });
+
+          test("insert(doc, callback)", function(done) {
+            coll.insert({x: 1, y: 2}, function(error) {
+              assert(error === undefined);
+              coll.findOne({id: {$like: ".{8}-.{4}-.{4}-.{4}-.{12}"}}, function(error, doc) {
+                assert(error === undefined);
+                doc.must.have({
+                  x: 1,
+                  y: 2
+                });
+                doc._id.must.match(/^myschema\.mycoll:.{8}-.{4}-.{4}-.{4}-.{12}$/);
+                doc.id.must.match(/^.{8}-.{4}-.{4}-.{4}-.{12}$/);
+                done();
+              });
+            });
+          });
+
+          test("insert(doc, opts, callback)", function(done) {
+            coll.insert({x: 1, y: 2}, {}, function(error) {
+              assert(error === undefined);
+              coll.findOne({id: {$like: ".{8}-.{4}-.{4}-.{4}-.{12}"}}, function(error, doc) {
+                assert(error === undefined);
+                doc.must.have({
+                  x: 1,
+                  y: 2
+                });
+                doc._id.must.match(/^myschema\.mycoll:.{8}-.{4}-.{4}-.{4}-.{12}$/);
+                doc.id.must.match(/^.{8}-.{4}-.{4}-.{4}-.{12}$/);
+                done();
               });
             });
           });
@@ -389,6 +462,12 @@ suite("Base Collection (Asynchronous Connection)", function() {
     });
 
     suite("Several documents", function() {
+      var coll;
+
+      init({name: "*", title: "Get collection"}, function() {
+        coll = db.getCollection("myschema.mycoll");
+      });
+
       test("insert([])", function(done) {
         coll.insert([]);
         done();
@@ -406,21 +485,61 @@ suite("Base Collection (Asynchronous Connection)", function() {
         });
       });
 
-      test("insert([doc, doc])", function(done) {
-        coll.insert([{x: 1, y: 2}, {x: 2, y: 1}]);
-
-        setTimeout(function() {
-          coll.count(function(error, count) {
+      suite("UUID", function() {
+        test("insert(docs, callback)", function(done) {
+          coll.insert([{x: 1, y: 2}, {x: 2, y: 1}], function(error) {
             assert(error === undefined);
-            count.must.be.eq(8);
-            done();
+            coll.find({id: {$like: ".{8}-.{4}-.{4}-.{4}-.{12}"}}, function(error, res) {
+              assert(error === undefined);
+
+              res.length.must.be.eq(2);
+              for (var doc of res.docs) {
+                doc.x.must.be.between(1, 2);
+                doc.y.must.be.between(1, 2);
+                doc._id.must.match(/^myschema.mycoll:.{8}-.{4}-.{4}-.{4}-.{12}$/);
+                doc.id.must.match(/^.{8}-.{4}-.{4}-.{4}-.{12}$/);
+              }
+
+              done();
+            });
           });
-        }, 500);
+        });
+      });
+
+      suite("Sequence", function() {
+        init({name: "*", title: "Replace collection with collection and id==sequence"}, function() {
+          coll = db.getCollection("myschema.mycoll", {id: "sequence"});
+        });
+
+        test("insert(docs, callback)", function(done) {
+          coll.insert([{x: 111, y: 222}, {x: 222, y: 111}], function(error) {
+            assert(error === undefined);
+            coll.find({x: {$in: [111, 222]}}, function(error, res) {
+              assert(error === undefined);
+
+              res.length.must.be.eq(2);
+              for (var doc of res.docs) {
+                doc._id.must.match(/^myschema\.mycoll:(1|2)$/);
+                doc.id.must.be.between(1, 2);
+                doc.x.must.be.between(111, 222);
+                doc.y.must.be.between(111, 222);
+              }
+
+              done();
+            });
+          });
+        });
       });
     });
   });
 
   suite("#update()", function() {
+    var coll;
+
+    init({name: "*", title: "Get collection"}, function() {
+      coll = db.getCollection("myschema.mycoll");
+    });
+
     test("update(query, update)", function(done) {
       coll.update({x: {$between: [2, 3]}}, {c: 123});
 
@@ -523,6 +642,12 @@ suite("Base Collection (Asynchronous Connection)", function() {
   });
 
   suite("#remove()", function() {
+    var coll;
+
+    init({name: "*", title: "Get collection"}, function() {
+      coll = db.getCollection("myschema.mycoll");
+    });
+
     test("remove()", function() {
       coll.remove.bind(coll).must.raise(Error, []);
     });
@@ -587,6 +712,12 @@ suite("Base Collection (Asynchronous Connection)", function() {
   });
 
   suite("#truncate()", function() {
+    var coll;
+
+    init({name: "*", title: "Get collection"}, function() {
+      coll = db.getCollection("myschema.mycoll");
+    });
+
     test("truncate()", function(done) {
       coll.truncate();
 

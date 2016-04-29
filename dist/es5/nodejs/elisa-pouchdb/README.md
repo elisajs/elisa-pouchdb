@@ -1,8 +1,9 @@
+[![NPM version](http://img.shields.io/npm/v/elisa-pouchdb.svg)](https://www.npmjs.org/package/elisa-pouchdb)
 [![Build Status](https://travis-ci.org/elisajs/elisa-pouchdb.svg?branch=master)](https://travis-ci.org/elisajs/elisa-pouchdb)
 [![Dependency Status](https://david-dm.org/elisajs/elisa-pouchdb.svg)](https://david-dm.org/elisajs/elisa-pouchdb)
 [![devDependency Status](https://david-dm.org/elisajs/elisa-pouchdb/dev-status.svg)](https://david-dm.org/elisajs/elisa-pouchdb#info=devDependencies)
 
-*PouchDB* *Elisa.js* driver. This driver complies with [Elisa 0.3 spec](https://github.com/elisajs/elisa).
+*PouchDB* *Elisa.js* driver. This driver complies with [Elisa 0.3.1 spec](https://github.com/elisajs/elisa).
 
 *Proudly made with ♥ in Valencia, Spain, EU.*
 
@@ -17,6 +18,16 @@
 *PouchDB* is a document database, where all the documents are saved into a database,
 without collection support and without schema support. But **this driver** simulates *key-value stores* and
 *document collections* and *schemas*.
+
+# Table of contents
+
+- [Install](#install)
+- [Driver load](#driver-load)
+- [Connections](#connections)
+- [Schemas](#schemas)
+- [Key-value stores](#key-value-stores)
+- [Document collections](#document-collections)
+
 
 # Install
 
@@ -36,7 +47,7 @@ We can use the following names:
 - `PouchDB`
 - `Pouch`
 
-# Connection
+# Connections
 
 ## Connection to local database
 
@@ -174,7 +185,7 @@ store.findAll(function(error, result) {});
 Please, see the *Elisa.js* spec to know how to use the stores. This driver
 complies with the spec.
 
-# Document collection
+# Document collections
 
 *PouchDB* is a document database. This DBMS doesn't support the *collection* concept.
 But this driver does it.
@@ -191,6 +202,15 @@ Examples:
 var emp = cx.db.getCollection("hr.employees");
 var emp = cx.db.getCollection("hr.employees", {design: "hr", view: "employees"});
 ```
+
+The options can be:
+
+- `design` (string). Indicate the design document name if needed.
+- `view` (string). Indicate the view name if needed.
+- `id` (string). Indicate how to generate the `id` field if not indicated in an insert:
+  `uuid`, generating a UUID; `sequence`, using a sequence. Default: `uuid`.
+- `sequence` (string). If `id=="sequence"`, the sequence key.
+  Default: `__sequence__`.
 
 ## Inserting documents
 

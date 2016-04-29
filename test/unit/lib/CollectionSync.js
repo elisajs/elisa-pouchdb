@@ -10,7 +10,7 @@ const CollectionQuery = require("../../../dist/es5/nodejs/elisa-pouchdb/lib/Coll
 const Result = require("../../../dist/es5/nodejs/elisa-pouchdb/lib/Result").default;
 
 //suite
-suite("Collection (Synchronous Connection)", function() {
+suite.only("Collection (Synchronous Connection)", function() {
   var drv, cx, db, coll;
 
   init({title: "Get driver"}, function() {
@@ -20,7 +20,7 @@ suite("Collection (Synchronous Connection)", function() {
   init({name: "*", title: "Open connection and get collection"}, function() {
     cx = drv.openConnection({type: "sync"}, {});
     db = cx.db;
-    coll = db.getCollection("myschema.mycoll");
+    coll = db.getCollection("myschema.mycoll", {id: "sequence"});
   });
 
   fin({name: "*", title: "Drop database"}, function(done) {

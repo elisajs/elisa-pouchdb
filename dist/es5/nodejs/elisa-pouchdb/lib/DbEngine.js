@@ -1,11 +1,16 @@
 "use strict";Object.defineProperty(exports, "__esModule", { value: true });var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();
+var _pouchdb = require("pouchdb");var _pouchdb2 = _interopRequireDefault(_pouchdb);
 var _elisaUtil = require("elisa-util");
 var _Result = require("./Result");var _Result2 = _interopRequireDefault(_Result);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}
 
 
 var filter = new _elisaUtil.Filter().filter;
 var project = new _elisaUtil.Projector().project;
-var sort = new _elisaUtil.Sorter().sort;var 
+var sort = new _elisaUtil.Sorter().sort;
+
+
+var insertDocWithId = Symbol();
+var insertDocWithoutId = Symbol();var 
 
 
 
@@ -124,4 +129,51 @@ DbEngine = function () {function DbEngine() {_classCallCheck(this, DbEngine);}_c
 
 
 
-        remove(0);});} }]);return DbEngine;}();exports.default = DbEngine;
+        remove(0);});} }, { key: "insert", value: function insert(
+
+
+
+
+
+
+
+
+
+
+
+    src, doc, opts, callback) {
+      if (doc.hasOwnProperty("id")) this[insertDocWithId](src, doc, opts, callback);else 
+      this[insertDocWithoutId](src, doc, opts, callback);} }, { key: 
+
+
+    insertDocWithId, value: function value(src, doc, opts, callback) {
+      var cli = src.client;
+
+      this.hasId(src, doc.id, function (error, exists) {
+        if (error) return callback(error);
+        if (exists) return callback(new Error("Id already exists."));
+
+        cli.put(doc, src.key(doc.id), opts, function (res) {
+          if (res && res.error) callback(res);else 
+          callback();});});} }, { key: 
+
+
+
+
+    insertDocWithoutId, value: function value(src, doc, opts, callback) {
+      var cli = src.client;
+
+      if (src.id == "uuid") {
+        doc.id = _pouchdb2.default.utils.uuid();
+
+        cli.put(doc, src.key(doc.id), opts, function (res) {
+          if (res && res.error) callback(res);else 
+          callback();});} else 
+
+      if (src.id == "sequence") {
+        src.nextSequenceValue(function (error, value) {
+          if (error) return callback(error);
+          doc.id = value;
+          cli.put(doc, src.key(doc.id), opts, function (res) {
+            if (res && res.error) callback(res);else 
+            callback();});});}} }]);return DbEngine;}();exports.default = DbEngine;

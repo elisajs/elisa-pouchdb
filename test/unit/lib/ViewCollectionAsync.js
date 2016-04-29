@@ -22,7 +22,7 @@ suite("View Collection (Asynchronous Connection)", function() {
       cx = con;
       client = cx.client;
       db = cx.db;
-      coll = db.getCollection("myschema.mycoll", {prefix: "mysch.mycoll:", design: "mysch", view: "mycoll"});
+      coll = db.getCollection("myschema.mycoll", {prefix: "mysch.mycoll:", design: "mysch", view: "mycoll", id: "sequence"});
       done();
     });
   });
@@ -288,7 +288,7 @@ suite("View Collection (Asynchronous Connection)", function() {
               error.message.must.be.eq("Id already exists.");
               done();
             });
-          })
+          });
         });
       });
 
